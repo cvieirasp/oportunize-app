@@ -1,0 +1,9 @@
+services:
+  database:
+    image: "bitnami/postgresql"
+    environment:
+      POSTGRES_DB: oportunize
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+    ports:
+      - "5432:5432"
