@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { createComapny } from "@/app/actions"
+import { createCompany } from "@/app/actions"
 import { UploadDropzone } from "@/components/common/UploadThingFile"
 import { companySchema } from "@/app/utils/zodSchemas"
 import { countryList } from "@/app/utils/countriesList"
@@ -35,7 +35,7 @@ export default function CompanyForm() {
   async function handleSubmit(data: z.infer<typeof companySchema>) {
     try {
       setPending(true)
-      await createComapny(data)
+      await createCompany(data)
     } catch (err) {
       if (err instanceof Error && err.message !== "NEXT_REDIRECT") {
         console.error(err)
