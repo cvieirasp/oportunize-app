@@ -29,7 +29,7 @@ export default async function LoginForm() {
               "use server"
 
               await signIn("github", {
-                redirectTo: "/"
+                redirectTo: "/onboarding",
               })
             }}>
               <GeneralSubmitButton text="Login com GitHub" variant="outline" width="w-full" icon={<GitHubIcon />} />
