@@ -6,9 +6,28 @@ import { z } from "zod"
 import { companySchema, jobSeekerSchema } from "@/app/utils/zodSchemas"
 import { requireUser } from "@/app/utils/hooks"
 import { prisma } from "@/app/utils/database"
+import arcjet, { detectBot, shield } from "@/app/utils/arcjet"
+import { request } from "@arcjet/next"
+
+const aj = arcjet.withRule(
+  shield({
+    mode: process.env.NODE_ENV === "development" ? "DRY_RUN" : "LIVE"
+  })
+).withRule(
+  detectBot({
+    mode: process.env.NODE_ENV === "development" ? "DRY_RUN" : "LIVE",
+    allow: [],
+  })
+)
 
 export async function createCompany (data: z.infer<typeof companySchema>) {
   const session = await requireUser()
+
+  const req = await request()
+  const decision = await aj.protect(req)
+  if (decision.isDenied()) {
+    throw new Error("Forbidden")
+  }
 
   const validateData = companySchema.parse(data)
 
@@ -37,6 +56,12 @@ export async function createCompany (data: z.infer<typeof companySchema>) {
 
 export async function createJobSeeker(data: z.infer<typeof jobSeekerSchema>) {
   const session = await requireUser()
+
+  const req = await request()
+  const decision = await aj.protect(req)
+  if (decision.isDenied()) {
+    throw new Error("Forbidden")
+  }
 
   const validatedData = jobSeekerSchema.parse(data)
 
