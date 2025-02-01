@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation"
 import { z } from "zod"
 
-import { companySchema, jobSeekerSchema } from "@/app/utils/zodSchemas"
+import { companySchema, jobSchema, jobSeekerSchema } from "@/app/utils/zodSchemas"
 import { requireUser } from "@/app/utils/hooks"
 import { prisma } from "@/app/utils/database"
 import arcjet, { detectBot, shield } from "@/app/utils/arcjet"
@@ -29,7 +29,7 @@ export async function createCompany (data: z.infer<typeof companySchema>) {
     throw new Error("Forbidden")
   }
 
-  const validateData = companySchema.parse(data)
+  const validatedData = companySchema.parse(data)
 
   await prisma.user.update({
     where: {
@@ -40,12 +40,12 @@ export async function createCompany (data: z.infer<typeof companySchema>) {
       userType: "COMPANY",
       Company: {
         create: {
-          name: validateData.name,
-          location: validateData.location,
-          about: validateData.about,
-          logo: validateData.logo,
-          website: validateData.website,
-          xAccount: validateData.xAccount,
+          name: validatedData.name,
+          location: validatedData.location,
+          about: validatedData.about,
+          logo: validatedData.logo,
+          website: validatedData.website,
+          xAccount: validatedData.xAccount,
         }
       }
     },
@@ -79,6 +79,47 @@ export async function createJobSeeker(data: z.infer<typeof jobSeekerSchema>) {
           resume: validatedData.resume
         },
       },
+    },
+  })
+
+  return redirect("/")
+}
+
+export async function createJob (data: z.infer<typeof jobSchema>) {
+  const session = await requireUser()
+
+  const req = await request()
+  const decision = await aj.protect(req)
+  if (decision.isDenied()) {
+    throw new Error("Forbidden")
+  }
+
+  const validatedData = jobSchema.parse(data)
+
+  const company = await prisma.company.findUnique({
+    where: {
+      userId: session.id,
+    },
+    select: {
+      id: true,
+    },
+  })
+
+  if (!company?.id) {
+    return redirect("/")
+  }
+
+  const jobPost = await prisma.jobPost.create({
+    data: {
+      companyId: company.id,
+      jobDescription: validatedData.jobDescription,
+      jobTitle: validatedData.jobTitle,
+      employmentType: validatedData.employmentType,
+      location: validatedData.location,
+      salaryFrom: validatedData.salaryFrom,
+      salaryTo: validatedData.salaryTo,
+      listingDuration: validatedData.listingDuration,
+      benefits: validatedData.benefits,
     },
   })
 
