@@ -1,11 +1,12 @@
 import { serve } from "inngest/next"
 
 import { inngest } from "@/app/utils/innjest"
-import { handleJobExpiration } from "./functions"
+import { handleJobExpiration, sendPeriodicJobListings } from "./functions"
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
   functions: [
-    handleJobExpiration
+    handleJobExpiration,
+    sendPeriodicJobListings
   ]
 })
