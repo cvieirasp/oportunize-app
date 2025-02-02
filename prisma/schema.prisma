@@ -22,6 +22,8 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
+  stripeCustomerId String? @unique
+
   userType            UserType?
   onboardingCompleted Boolean   @default(false)
 
