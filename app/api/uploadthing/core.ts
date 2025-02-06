@@ -41,8 +41,8 @@ export const appFileRouter = {
     // Lança uma exceção caso o usuário não esteja autenticado, fazendo com que ele não possa fazer o upload.
     if (!session?.user) throw new UploadThingError("Unauthorized")
 
-      // Qualquer valor retornado aqui estará acessível em onUploadComplete como 'metadata'.
-      return { userId: session.user.id }
+    // Qualquer valor retornado aqui estará acessível em onUploadComplete como 'metadata'.
+    return { userId: session.user.id }
   }).onUploadComplete(async ({ metadata, file }) => {
     console.log("Upload complete for userId:", metadata.userId)
     console.log("file url", file.url)

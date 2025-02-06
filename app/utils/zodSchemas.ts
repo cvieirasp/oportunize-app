@@ -1,5 +1,16 @@
 import { z } from "zod"
 
+export const LoginSchema = z.object({
+  email: z.string().email("Por favor, insira um email válido"),
+  password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
+})
+
+export const RegisterSchema = z.object({
+  email: z.string().email("Por favor, insira um email válido"),
+  password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
+  name: z.string().min(2, "Nome deve ter no mínimo 2 caracteres"),
+})
+
 export const companySchema = z.object({
   name: z.string().min(2, "Nome da empresa deve ter no mínimo 2 caracteres"),
   location: z.string().min(2, "Localização da empresa deve ser selecionada"),
@@ -11,7 +22,6 @@ export const companySchema = z.object({
 
 export const jobSeekerSchema = z.object({
   name: z.string().min(2, "Nome do candidato deve ter no mínimo 2 caracteres"),
-  location: z.string().min(2, "Localização do candidato deve ser selecionada"),
   bio: z.string().min(10, "Informações sobre o candidato deve ter no mínimo 10 caracteres"),
   resume: z.string().nonempty("Currículo do candidato é obrigatório"),
 })

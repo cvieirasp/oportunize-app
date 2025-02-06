@@ -5,6 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { signOut } from "@/app/utils/auth"
+//import { signOut } from "@/app/utils/auth"
 
 interface UserDropdownProps {
   email: string
@@ -55,7 +56,7 @@ export default function UserDropdown({ email, name, image }: UserDropdownProps) 
             "use server"
 
             await signOut({
-              redirectTo: "/"
+              redirectTo: "/",
             })
           }}>
             <button className="flex w-full items-center gap-2">

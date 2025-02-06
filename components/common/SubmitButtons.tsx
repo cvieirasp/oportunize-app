@@ -1,7 +1,7 @@
 "use client"
 
 import { useFormStatus } from "react-dom"
-import { Loader2 } from "lucide-react"
+import { Heart, Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
@@ -30,6 +30,32 @@ export function GeneralSubmitButton({ text, variant, width, icon }: GeneralSubmi
         </>
       )
     }
+    </Button>
+  )
+}
+
+export function SaveJobButton({ savedJob }: { savedJob: boolean }) {
+  const { pending } = useFormStatus()
+
+  return (
+    <Button variant="outline"
+      disabled={pending}
+      type="submit"
+      className="flex items-center gap-2"
+    >
+      {
+        pending ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Salvando...</span>
+          </>
+        ) : (
+          <>
+            <Heart className={`size-4 transition-colors ${ savedJob ? "fill-current text-red-500" : "" }`} />
+            {savedJob ? "Salvo" : "Salvar Vaga"}
+          </>
+        )
+      }
     </Button>
   )
 }

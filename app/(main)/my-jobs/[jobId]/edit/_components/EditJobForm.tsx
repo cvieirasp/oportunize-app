@@ -2,71 +2,93 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import { Loader2, XIcon } from "lucide-react"
+import { toast } from "sonner"
+import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Loader2, XIcon } from "lucide-react"
 
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { jobSchema } from "@/app/utils/zodSchemas"
-import { countryList } from "@/app/utils/countriesList"
+import { updateJobPost } from "@/app/actions"
+import { UploadDropzone } from "@/components/common/UploadThingFile"
 import SalaryRangeSelector from "@/components/common/SalaryRangeSelector"
 import JobDescriptionEditor from "@/components/common/richTextEditor/JobDescriptionEditor"
 import BenefitsSelector from "@/components/common/BenefitsSelector"
-import { UploadDropzone } from "@/components/common/UploadThingFile"
-import JobListingDurationSelector from "@/components/common/JobListingDurationSelector"
-import { createJob } from "@/app/actions"
+import { countryList } from "@/app/utils/countriesList"
 
-interface CreateJobFormProps {
-  companyName: string;
-  companyLocation: string;
-  companyAbout: string;
-  companyLogo: string;
-  companyXAccount: string | null;
-  companyWebsite: string;
+interface EditJobFormProps {
+  jobPost: {
+    jobTitle: string
+    id: string
+    employmentType: string
+    location: string
+    salaryFrom: number
+    salaryTo: number
+    jobDescription: string
+    benefits: string[]
+    listingDuration: number
+    company: {
+      location: string
+      name: string
+      logo: string
+      website: string
+      xAccount: string | null
+      about: string
+    }
+  }
 }
 
-export function CreateJobForm({
-  companyAbout,
-  companyLocation,
-  companyLogo,
-  companyXAccount,
-  companyName,
-  companyWebsite,
-}: CreateJobFormProps) {
+export default function EditJobForm({ jobPost }: EditJobFormProps) {
   const form = useForm<z.infer<typeof jobSchema>>({
     resolver: zodResolver(jobSchema),
     defaultValues: {
-      benefits: [],
-      companyDescription: companyAbout,
-      companyLocation: companyLocation,
-      companyName: companyName,
-      companyLogo: companyLogo,
-      companyWebsite: companyWebsite,
-      companyXAccount: companyXAccount || "",
-      employmentType: "",
-      jobDescription: "",
-      jobTitle: "",
-      listingDuration: 30,
-      location: "",
-      salaryFrom: 0,
-      salaryTo: 0,
+      benefits: jobPost.benefits,
+      companyDescription: jobPost.company.about,
+      companyLocation: jobPost.company.location,
+      companyName: jobPost.company.name,
+      companyWebsite: jobPost.company.website,
+      companyXAccount: jobPost.company.xAccount || "",
+      employmentType: jobPost.employmentType,
+      jobDescription: jobPost.jobDescription,
+      jobTitle: jobPost.jobTitle,
+      location: jobPost.location,
+      salaryFrom: jobPost.salaryFrom,
+      salaryTo: jobPost.salaryTo,
+      companyLogo: jobPost.company.logo,
+      listingDuration: jobPost.listingDuration,
     },
   })
 
   const [pending, setPending] = useState(false)
 
-  async function handleSubmit(data: z.infer<typeof jobSchema>) {
+  async function handleSubmit(values: z.infer<typeof jobSchema>) {
     try {
       setPending(true)
-      await createJob(data)
+      await updateJobPost(values, jobPost.id)
     } catch (err) {
       if (err instanceof Error && err.message !== "NEXT_REDIRECT") {
+        toast.error("Algo deu errado. Por favor, tente novamente.")
         console.error(err)
       }
     } finally {
@@ -76,22 +98,23 @@ export function CreateJobForm({
 
   return (
     <Form {...form}>
-      <form className="col-span-1 lg:col-span-2 flex flex-col gap-8"
+      <form
         onSubmit={form.handleSubmit(handleSubmit)}
+        className="col-span-1 lg:col-span-2 flex flex-col gap-8"
       >
         <Card>
           <CardHeader>
             <CardTitle>Informações da Vaga</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-6">
               <FormField control={form.control}
-                name="jobTitle" 
+                name="jobTitle"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Título da Vaga</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: Desenvolvedor Frontend" {...field} />
+                      <Input placeholder="Título da vaga..." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -99,14 +122,14 @@ export function CreateJobForm({
               />
 
               <FormField control={form.control}
-                name="employmentType" 
+                name="employmentType"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tipo da Vaga</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecione o tipo da vaga" />
+                          <SelectValue placeholder="Selecione o Tipo da Vaga" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -138,7 +161,7 @@ export function CreateJobForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectGroup>
+                      <SelectGroup>
                           <SelectLabel>Global</SelectLabel>
                           <SelectItem value="worldwide">
                             <span>🌐</span>
@@ -178,8 +201,7 @@ export function CreateJobForm({
               </FormItem>
             </div>
 
-            <FormField
-              control={form.control}
+            <FormField control={form.control}
               name="jobDescription"
               render={({ field }) => (
                 <FormItem>
@@ -264,6 +286,7 @@ export function CreateJobForm({
                 )}
               />
             </div>
+
             <div className="grid md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
@@ -396,28 +419,8 @@ export function CreateJobForm({
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Duração da Listagem da Vaga</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <FormField
-              control={form.control}
-              name="listingDuration"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <JobListingDurationSelector field={field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
-
         <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? <Loader2 className="size-4 animate-spin" /> : "Registrar Vaga" }
+          {pending ? <Loader2 className="size-4 animate-spin" /> : "Atualizar Vaga" }
         </Button>
       </form>
     </Form>
