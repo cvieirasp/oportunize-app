@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -11,8 +12,9 @@ export default function LoginPage() {
         <Link href="/" className="flex items-center self-center">
           <Image src={Logo} alt="logo" width={200} height={100} />
         </Link>
-
-        <LoginForm />
+        <Suspense fallback={<div>Loading...</div>}>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   )

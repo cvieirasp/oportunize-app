@@ -1,8 +1,11 @@
+import { Suspense } from "react"
 import { VerifyEmailForm } from "./_components/verify-email-form"
 
 const VerifyEmailPage = () => {
   return (
-    <VerifyEmailForm />
+    <Suspense fallback={<div>Loading...</div>}>
+      <VerifyEmailForm />
+    </Suspense>
   )
 }
 
