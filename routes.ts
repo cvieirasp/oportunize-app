@@ -5,7 +5,9 @@
 export const publicRoutes: string[] = [
   "/",
   "/auth/verify-email",
+  "/api/ingest",
   "/api/uploadthing",
+  "/api/webhook",
 ]
 
 /**
